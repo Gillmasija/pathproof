@@ -44,6 +44,8 @@ class Report:
 def audit(directory, max_references=50_000):
     scan = scan_site(directory)
     report = Report(files=len(scan.documents), errors=list(scan.errors))
+    resolved = {}
+    existing = {}
 
     def finding(source, line, code, value):
         if len(report.findings) < 5000:
@@ -63,7 +65,10 @@ def audit(directory, max_references=50_000):
             if report.checked + report.skipped >= max_references:
                 report.errors.append(f"Site exceeds the {max_references}-reference limit.")
                 return report
-            target = resolve_reference(scan.root, path, reference.value)
+            key = (path, reference.value)
+            if key not in resolved:
+                resolved[key] = resolve_reference(scan.root, path, reference.value)
+            target = resolved[key]
             if target.skipped:
                 report.skipped += 1
                 continue
@@ -71,7 +76,9 @@ def audit(directory, max_references=50_000):
             code = target.error
             if not code:
                 try:
-                    if not exact_file(target.path, scan.root):
+                    if target.path not in existing:
+                        existing[target.path] = exact_file(target.path, scan.root)
+                    if not existing[target.path]:
                         code = "missing-file"
                     elif target.fragment and target.path.suffix.lower() in HTML_SUFFIXES:
                         destination = scan.documents.get(target.path)

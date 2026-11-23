@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from pathproof.audit import audit
 
@@ -51,3 +52,10 @@ class AuditTests(unittest.TestCase):
         result = audit(self.root)
         self.assertEqual(len(result.findings), 5000)
         self.assertEqual(result.exit_code, 2)
+
+    def test_repeated_navigation_reuses_checks_but_keeps_source_lines(self):
+        self.write("index.html", '<a href="missing">A</a>\n<a href="missing">B</a>')
+        with patch("pathproof.audit.exact_file", return_value=False) as exists:
+            result = audit(self.root)
+        self.assertEqual(exists.call_count, 1)
+        self.assertEqual([f.line for f in result.findings], [1, 2])
