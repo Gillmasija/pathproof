@@ -1,4 +1,5 @@
 import tempfile
+import os
 import unittest
 from pathlib import Path
 
@@ -33,3 +34,18 @@ class ScanTests(unittest.TestCase):
         self.assertIn("bytes", scan_site(self.root, max_bytes=4).errors[0])
         self.assertIn("file limit", scan_site(self.root, max_files=1).errors[0])
         self.assertIn("total bytes", scan_site(self.root, max_total=9).errors[0])
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "Named pipes require POSIX")
+    def test_named_pipe_is_rejected_without_reading(self):
+        os.mkfifo(self.root / "pipe.html")
+        self.assertIn("Non-regular", scan_site(self.root).errors[0])
+
+    def test_symlink_directory_is_not_traversed(self):
+        (self.root / "index.html").write_text("ok", encoding="utf-8")
+        try:
+            (self.root / "loop").symlink_to(self.root, target_is_directory=True)
+        except OSError:
+            self.skipTest("OS does not permit creating symlinks")
+        scan = scan_site(self.root)
+        self.assertEqual(len(scan.documents), 1)
+        self.assertIn("Symlink directory", scan.errors[0])

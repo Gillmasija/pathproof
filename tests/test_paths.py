@@ -28,7 +28,7 @@ class PathTests(unittest.TestCase):
     def test_escape_and_invalid_values(self):
         for value in ["../../outside.html", "/%2e%2e/outside.html"]:
             self.assertEqual(resolve_reference(self.root, self.source, value).error, "outside-root")
-        for value in ["x%GG", "x%00.html", "x\\foo", "x\nfoo", "/C:/file"]:
+        for value in ["x%GG", "x%FF", "x%00.html", "x\\foo", "x\nfoo", "/C:/file"]:
             self.assertEqual(resolve_reference(self.root, self.source, value).error, "invalid-url")
 
     def test_case_sensitive_files(self):

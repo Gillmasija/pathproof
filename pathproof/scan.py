@@ -35,7 +35,7 @@ def scan_site(directory, max_files=2000, max_bytes=1_000_000, max_total=32_000_0
         dirs[:] = sorted(d for d in dirs if d not in IGNORED)
         for name in dirs[:]:
             path = Path(parent) / name
-            if path.is_symlink():
+            if path.is_symlink() or path.resolve() != path:
                 result.errors.append(f"Symlink directory not scanned: {path.relative_to(root).as_posix()}")
                 dirs.remove(name)
         for name in sorted(files):
@@ -47,8 +47,8 @@ def scan_site(directory, max_files=2000, max_bytes=1_000_000, max_total=32_000_0
             if count > max_files:
                 result.errors.append(f"Site exceeds the {max_files}-HTML-file limit.")
                 return result
-            if path.is_symlink():
-                result.errors.append(f"Symlink HTML not scanned: {relative}")
+            if path.is_symlink() or not path.is_file() or path.resolve() != path:
+                result.errors.append(f"Non-regular or redirected HTML not scanned: {relative}")
                 continue
             try:
                 with path.open("rb") as stream:
@@ -61,8 +61,12 @@ def scan_site(directory, max_files=2000, max_bytes=1_000_000, max_total=32_000_0
                     result.errors.append(f"HTML input exceeds {max_total} total bytes.")
                     return result
                 result.documents[path] = parse_html(data.decode("utf-8-sig"))
-            except (OSError, ValueError) as error:
+            except UnicodeError as error:
                 result.errors.append(f"Cannot read UTF-8 HTML: {relative} ({type(error).__name__})")
+            except ValueError as error:
+                result.errors.append(f"Cannot parse HTML: {relative} ({error})")
+            except OSError as error:
+                result.errors.append(f"Cannot read HTML: {relative} ({type(error).__name__})")
     if not result.documents and not result.errors:
         result.errors.append("No .html or .htm files found in the site root.")
     return result

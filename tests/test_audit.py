@@ -43,3 +43,11 @@ class AuditTests(unittest.TestCase):
         result = audit(self.root)
         self.assertEqual([f.code for f in result.findings], ["unreadable-target"])
         self.assertFalse(result.to_dict()["complete"])
+
+    def test_browser_top_fragment_and_finding_limit(self):
+        self.write("index.html", '<a href="#top">Top</a><a href="#TOP">Top</a>')
+        self.assertEqual(audit(self.root).exit_code, 0)
+        self.write("index.html", '<a href="missing">Missing</a>' * 5001)
+        result = audit(self.root)
+        self.assertEqual(len(result.findings), 5000)
+        self.assertEqual(result.exit_code, 2)

@@ -23,8 +23,11 @@ def resolve_reference(root, source, value):
             return Target(skipped=True)
         if re.search(r"%(?![0-9a-fA-F]{2})", url.path + url.fragment):
             return Target(error="invalid-url")
-        path = unquote(url.path, errors="strict")
-        fragment = unquote(url.fragment, errors="strict")
+        try:
+            path = unquote(url.path, errors="strict")
+            fragment = unquote(url.fragment, errors="strict")
+        except UnicodeError:
+            return Target(error="invalid-url")
         if any(ord(c) < 32 for c in path + fragment) or "\\" in path or ":" in path:
             return Target(error="invalid-url")
         candidate = (root / path.lstrip("/")) if path.startswith("/") else (source.parent / path if path else source)

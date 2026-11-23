@@ -22,6 +22,7 @@ class SiteParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.document = Document()
+        self.element_ids = set()
 
     def handle_starttag(self, tag, attrs):
         line = self.getpos()[0]
@@ -29,8 +30,10 @@ class SiteParser(HTMLParser):
             if value is None:
                 continue
             if key == "id" or (tag == "a" and key == "name"):
-                if value in self.document.ids and key == "id":
-                    self.document.duplicate_ids.append((value, line))
+                if key == "id":
+                    if value in self.element_ids:
+                        self.document.duplicate_ids.append((value, line))
+                    self.element_ids.add(value)
                 self.document.ids.add(value)
             if tag == "base" and key == "href":
                 self.document.has_base = True

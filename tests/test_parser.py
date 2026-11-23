@@ -18,3 +18,10 @@ class ParserTests(unittest.TestCase):
         doc = parse_html('<base href="/site/"><p id="x"></p>\n<p id="x">')
         self.assertTrue(doc.has_base)
         self.assertEqual(doc.duplicate_ids, [("x", 2)])
+
+    def test_legacy_name_and_id_on_same_anchor_are_not_duplicate_ids(self):
+        self.assertEqual(parse_html('<a name="x" id="x">X</a>').duplicate_ids, [])
+
+    def test_extraction_limit(self):
+        with self.assertRaisesRegex(ValueError, "20000"):
+            parse_html('<a href="#">X</a>' * 20001)

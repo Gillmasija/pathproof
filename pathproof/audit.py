@@ -78,7 +78,7 @@ def audit(directory, max_references=50_000):
                         if destination is None:
                             code = "unreadable-target"
                             report.errors.append(f"Target HTML not scanned: {target.path.relative_to(scan.root).as_posix()}")
-                        elif target.fragment not in destination.ids:
+                        elif target.fragment not in destination.ids and target.fragment.lower() != "top":
                             code = "missing-fragment"
                 except OSError:
                     report.errors.append(f"Cannot inspect target for {source}:{reference.line}")
