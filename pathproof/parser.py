@@ -36,6 +36,8 @@ class SiteParser(HTMLParser):
                 self.document.has_base = True
             elif key in {"href", "src"}:
                 self.document.references.append(Reference(value, line, key))
+            if len(self.document.references) + len(self.document.ids) + len(self.document.duplicate_ids) > 20_000:
+                raise ValueError("HTML exceeds 20000 extracted entries")
 
     handle_startendtag = handle_starttag
 

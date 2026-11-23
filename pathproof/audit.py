@@ -46,7 +46,10 @@ def audit(directory, max_references=50_000):
     report = Report(files=len(scan.documents), errors=list(scan.errors))
 
     def finding(source, line, code, value):
-        report.findings.append(Finding(source, line, code, value, MESSAGES[code]))
+        if len(report.findings) < 5000:
+            report.findings.append(Finding(source, line, code, value, MESSAGES[code]))
+        elif "Finding limit reached; only the first 5000 findings retained." not in report.errors:
+            report.errors.append("Finding limit reached; only the first 5000 findings retained.")
 
     for path, document in sorted(scan.documents.items()):
         source = path.relative_to(scan.root).as_posix()

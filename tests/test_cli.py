@@ -34,3 +34,23 @@ class CLITests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertFalse(json.loads(result.stdout)["complete"])
         self.assertEqual(self.run_cli("--format", "xml").returncode, 2)
+
+    def test_report_creation_never_overwrites_and_preserves_source(self):
+        source = self.root / "index.html"
+        source.write_text('<h1>Hi</h1>', encoding="utf-8")
+        before = source.read_bytes()
+        output = self.root / "audit.json"
+        result = self.run_cli("--format", "json", "--output", str(output))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        saved = output.read_bytes()
+        self.assertEqual(json.loads(saved)["exit_code"], 0)
+        self.assertEqual(self.run_cli("--format", "json", "--output", str(output)).returncode, 2)
+        self.assertEqual(output.read_bytes(), saved)
+        self.assertEqual(self.run_cli("--format", "json", "--output", str(source)).returncode, 2)
+        self.assertEqual(source.read_bytes(), before)
+
+    def test_terminal_output_bounds_and_controls(self):
+        (self.root / "index.html").write_text('<a href="missing">X</a>' * 101, encoding="utf-8")
+        result = self.run_cli()
+        self.assertEqual(result.stdout.count("[missing-file]"), 100)
+        self.assertIn("Showing first 100", result.stdout)

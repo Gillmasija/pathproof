@@ -61,7 +61,7 @@ def scan_site(directory, max_files=2000, max_bytes=1_000_000, max_total=32_000_0
                     result.errors.append(f"HTML input exceeds {max_total} total bytes.")
                     return result
                 result.documents[path] = parse_html(data.decode("utf-8-sig"))
-            except (OSError, UnicodeError) as error:
+            except (OSError, ValueError) as error:
                 result.errors.append(f"Cannot read UTF-8 HTML: {relative} ({type(error).__name__})")
     if not result.documents and not result.errors:
         result.errors.append("No .html or .htm files found in the site root.")
