@@ -24,13 +24,13 @@ Python parsing, pathlib containment, URL normalization, deterministic data repor
 Each milestone is committed only after its checks pass. Add corrective commits for discovered issues.
 
 ## Acceptance checklist
-- [ ] Scan UTF-8 .html/.htm files in a supplied directory without changing inputs.
-- [ ] Check href/src local files and HTML fragments, with line numbers and actionable codes.
-- [ ] Support relative paths, root paths, directory index.html, percent-encoding, and query strings.
-- [ ] Skip external/special URLs explicitly, never contact the network.
-- [ ] Reject links escaping the root and do not follow symlinks out of it.
-- [ ] Deterministic terminal/JSON output; 0 clean, 1 findings, 2 invocation/read/write error.
-- [ ] Bounded file sizes/counts and explicit incomplete-audit errors.
-- [ ] JSON file output never overwrites existing files or source HTML.
-- [ ] Clean and broken synthetic samples, tests, lint, build, CI, setup docs and limitations.
-- [ ] At least ten focused verified commits, feature branch only after setup, same draft PR marked ready after passing checks.
+- [x] Scan UTF-8 .html/.htm files in a supplied directory without changing inputs.
+- [x] Check href/src local files and HTML fragments, with line numbers and actionable codes.
+- [x] Support relative paths, root paths, directory index.html, percent-encoding, and query strings.
+- [x] Skip external/special URLs explicitly, never contact the network.
+- [x] Reject links escaping the root and do not follow symlinks out of it.
+- [x] Deterministic terminal/JSON output; 0 clean, 1 findings, 2 invocation/read/write error.
+- [x] Bounded file sizes/counts and explicit incomplete-audit errors.
+- [x] JSON file output never overwrites existing files or source HTML.
+- [x] Clean and broken synthetic samples, tests, lint, build, CI, setup docs and limitations.
+- [x] At least ten focused verified commits; feature branch only after setup. Mark the same draft PR ready only after final checks pass.

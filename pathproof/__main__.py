@@ -21,7 +21,7 @@ def terminal_report(report):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Offline static HTML link checker")
+    parser = argparse.ArgumentParser(prog="pathproof", description="Offline static HTML link checker")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("directory", help="Built site directory containing .html/.htm files")
     parser.add_argument("--format", choices=["text", "json"], default="text")
